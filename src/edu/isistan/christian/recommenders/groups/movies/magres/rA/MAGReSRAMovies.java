@@ -61,7 +61,31 @@ public abstract class MAGReSRAMovies extends MAGReSRA<MovieItem> {
 		return agents;
 	}
 	
-	
+	@Override
+	protected List<UserAg<MovieItem>> createAgents(GRecGroup group, HashMap<SURUser, PUMASAgentProfile<MovieItem>> userAgProfiles, HashMap<SURUser, Double> assertivenessFactors, HashMap<SURUser, Double> cooperativenessFactors, HashMap<SURUser, HashMap<SURUser, Double>> relationshipsFactors) {
+		List<UserAg<MovieItem>> agents = new ArrayList<>();
+		
+		PUMASAgentProfile<MovieItem> defaultProfile = this.configs.getPUMASConfigs().getAgentsDefaultProfile();
+		
+		for (SURUser u : group){
+			PUMASAgentProfile<MovieItem> agProfile = (userAgProfiles.containsKey(u))? userAgProfiles.get(u) : defaultProfile;
+			
+			UserAg<MovieItem> ua = new MAGReSRAMoviesUserAgent(u, agProfile.getInitPropStrategy(),
+					agProfile.getConcessionCriterion(), agProfile.getPropAcceptanceStrategy(),
+					(MoviesSUR) configs.getPUMASConfigs().getSUR(),
+					agProfile.getUtilityFunction(), agProfile.getARPunishmentStrategy(),
+					agProfile.getPPoolMaxProposalsAddedOnRefill(), agProfile.getPPoolMaxRefillsAllowed(),
+					agProfile.isPPoolRefillAllowed(), agProfile.isPPoolAllowsRecycling(),
+					agProfile.isOptReuseUnusedProposalsEnabled(), agProfile.isOptUtilityCacheEnabled());
+
+			ua.setAssertivenessFactor(assertivenessFactors.get(u));
+			ua.setCooperativenessFactor(cooperativenessFactors.get(u));
+			ua.setRelationshipsFactor(relationshipsFactors.get(u));
+
+			agents.add (ua);
+		}
+		return agents;
+	}
 
 	@Override
 	public String toString() {
