@@ -62,6 +62,31 @@ public abstract class MAGReSRAMovies extends MAGReSRA<MovieItem> {
 	}
 	
 	@Override
+	protected List<UserAg<MovieItem>> createAgents(GRecGroup group, HashMap<SURUser, Double> assertivenessFactors, HashMap<SURUser, Double> cooperativenessFactors, HashMap<SURUser, HashMap<SURUser, Double>> relationshipsFactors) {
+		List<UserAg<MovieItem>> agents = new ArrayList<>();
+		PUMASAgentProfile<MovieItem> agentsDefaultProfile = this.configs.getPUMASConfigs().getAgentsDefaultProfile();
+		for (SURUser u : group){
+
+			UserAg<MovieItem> ua = new MAGReSRAMoviesUserAgent(u, agentsDefaultProfile.getInitPropStrategy(),
+					agentsDefaultProfile.getConcessionCriterion(), agentsDefaultProfile.getPropAcceptanceStrategy(),
+					(MoviesSUR) configs.getPUMASConfigs().getSUR(),
+					agentsDefaultProfile.getUtilityFunction(), agentsDefaultProfile.getARPunishmentStrategy(),
+					agentsDefaultProfile.getPPoolMaxProposalsAddedOnRefill(), agentsDefaultProfile.getPPoolMaxRefillsAllowed(),
+					agentsDefaultProfile.isPPoolRefillAllowed(), agentsDefaultProfile.isPPoolAllowsRecycling(),
+					agentsDefaultProfile.isOptReuseUnusedProposalsEnabled(), agentsDefaultProfile.isOptUtilityCacheEnabled());
+
+			ua.setAssertivenessFactor(assertivenessFactors.get(u));
+			ua.setCooperativenessFactor(cooperativenessFactors.get(u));
+			ua.setRelationshipsFactor(relationshipsFactors.get(u));
+
+			agents.add (ua);
+			
+			//TODO change this... the utility function and the punishment strategy should be loaded from the configs object
+		}
+		return agents;
+	}
+	
+	@Override
 	protected List<UserAg<MovieItem>> createAgents(GRecGroup group, HashMap<SURUser, PUMASAgentProfile<MovieItem>> userAgProfiles, HashMap<SURUser, Double> assertivenessFactors, HashMap<SURUser, Double> cooperativenessFactors, HashMap<SURUser, HashMap<SURUser, Double>> relationshipsFactors) {
 		List<UserAg<MovieItem>> agents = new ArrayList<>();
 		
